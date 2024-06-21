@@ -7,13 +7,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.newrecipes.R
 import com.example.newrecipes.adapters.MealRecyclerAdapter
 import com.example.newrecipes.adapters.SetOnMealClickListener
 import com.example.newrecipes.data.pojo.Meal
-import com.example.newrecipes.dataBinding.ActivityCategoriesBinding
+import com.example.newrecipes.databinding.ActivityCategoriesBinding
 import com.example.newrecipes.mvvm.MealActivityMVVM
 import com.example.newrecipes.ui.fragments.HomeFragment
 import com.example.newrecipes.ui.fragments.HomeFragment.Companion.CATEGORY_NAME
@@ -30,19 +30,20 @@ class MealActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCategoriesBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        mealActivityMvvm = ViewModelProviders.of(this)[MealActivityMVVM::class.java]
+        mealActivityMvvm = ViewModelProvider(this)[MealActivityMVVM::class.java]
         startLoading()
         prepareRecyclerView()
         mealActivityMvvm.getMealsByCategory(getCategory())
         mealActivityMvvm.observeMeal().observe(this, object : Observer<List<Meal>> {
-            override fun onChanged(t: List<Meal>?) {
+            override fun onChanged(value: List<Meal>) {
+                val t = null
                 if(t==null){
                     hideLoading()
                     Toast.makeText(applicationContext, "No meals in this category", Toast.LENGTH_SHORT).show()
                     onBackPressed()
                 }else {
                     myAdapter.setCategoryList(t!!)
-                    binding.tvCategoryCount.text = categoryNme + " : " + t.size.toString()
+                    binding.tvCategoryCount.text = categoryNme + " : " + t.toString()
                     hideLoading()
                 }
             }

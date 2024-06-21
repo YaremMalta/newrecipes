@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.newrecipes.adapters.MealRecyclerAdapter
 import com.example.newrecipes.data.pojo.MealDetail
@@ -32,7 +32,7 @@ class SearchFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         myAdapter = MealRecyclerAdapter()
-        searchMvvm = ViewModelProviders.of(this)[SearchMVVM::class.java]
+        searchMvvm = ViewModelProvider(this)[SearchMVVM::class.java]
     }
 
     override fun onCreateView(
@@ -73,29 +73,26 @@ class SearchFragment : Fragment() {
     }
 
     private fun observeSearchLiveData() {
-        searchMvvm.observeSearchLiveData()
-            .observe(viewLifecycleOwner, object : Observer<MealDetail> {
-                override fun onChanged(t: MealDetail?) {
-                    if (t == null) {
-                        Toast.makeText(context, "No such a meal", Toast.LENGTH_SHORT).show()
-                    } else {
-                        binding.apply {
+        searchMvvm.observeSearchLiveData().observe(viewLifecycleOwner, Observer { t ->
+            if (t == null) {
+                Toast.makeText(context, "No such a meal", Toast.LENGTH_SHORT).show()
+            } else {
+                binding.apply {
+                    mealId = t.idMeal
+                    mealStr = t.strMeal
+                    mealThub = t.strMealThumb
 
-                            mealId = t.idMeal
-                            mealStr = t.strMeal
-                            mealThub = t.strMealThumb
+                    Glide.with(requireContext().applicationContext)
+                        .load(t.strMealThumb)
+                        .into(imgSearchedMeal)
 
-                            Glide.with(context!!.applicationContext)
-                                .load(t.strMealThumb)
-                                .into(imgSearchedMeal)
-
-                            tvSearchedMeal.text = t.strMeal
-                            searchedMealCard.visibility = View.VISIBLE
-                        }
-                    }
+                    tvSearchedMeal.text = t.strMeal
+                    searchedMealCard.visibility = View.VISIBLE
                 }
-            })
+            }
+        })
     }
+
 
 
 }

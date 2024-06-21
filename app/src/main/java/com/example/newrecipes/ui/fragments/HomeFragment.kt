@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -27,8 +27,6 @@ import com.example.newrecipes.mvvm.MainFragMVVM
 import com.example.newrecipes.ui.activites.MealActivity
 import com.example.newrecipes.ui.MealBottomDialog
 import com.example.newrecipes.ui.activites.MealDetailesActivity
-
-
 
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -52,28 +50,32 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var myAdapter: CategoriesRecyclerAdapter
     private lateinit var mostPopularFoodAdapter: MostPopularRecyclerAdapter
-    lateinit var binding: FragmentHomeBinding
+    private lateinit var binding:FragmentHomeBinding
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        detailMvvm = ViewModelProviders.of(this)[DetailsMVVM::class.java]
-        binding = FragmentHomeBinding.inflate(layoutInflater)
-        myAdapter = CategoriesRecyclerAdapter()
-        mostPopularFoodAdapter = MostPopularRecyclerAdapter()
-    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // ViewModelProvider ile ViewModel'i oluştur
+        detailMvvm = ViewModelProvider(this).get(DetailsMVVM::class.java)
+
+        // FragmentHomeBinding'i inflate et ve binding değişkenine ata
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
+
+        // RecyclerView için adapter'ları oluştur
+        myAdapter = CategoriesRecyclerAdapter()
+        mostPopularFoodAdapter = MostPopularRecyclerAdapter()
+
+        // Root view'ı dön
         return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val mainFragMVVM = ViewModelProviders.of(this)[MainFragMVVM::class.java]
+        val mainFragMVVM = ViewModelProvider(this)[MainFragMVVM::class.java]
         showLoadingCase()
 
 
@@ -82,37 +84,36 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         onRndomMealClick()
         onRandomLongClick()
 
-
-        mainFragMVVM.observeMealByCategory().observe(viewLifecycleOwner, object : Observer<MealsResponse> {
-            override fun onChanged(t: MealsResponse?) {
-                val meals = t!!.meals
+// observeMealByCategory
+        mainFragMVVM.observeMealByCategory().observe(viewLifecycleOwner, Observer { mealsResponse ->
+            mealsResponse?.let { response ->
+                val meals = response.meals
                 setMealsByCategoryAdapter(meals)
                 cancelLoadingCase()
             }
-
-
         })
 
-        mainFragMVVM.observeCategories().observe(viewLifecycleOwner, object : Observer<CategoryResponse> {
-            override fun onChanged(t: CategoryResponse?) {
-                val categories = t!!.categories
+// observeCategories
+        mainFragMVVM.observeCategories().observe(viewLifecycleOwner, Observer { categoryResponse ->
+            categoryResponse?.let { response ->
+                val categories = response.categories
                 setCategoryAdapter(categories)
-
             }
         })
 
-        mainFragMVVM.observeRandomMeal().observe(viewLifecycleOwner, object : Observer<RandomMealResponse> {
-            override fun onChanged(t: RandomMealResponse?) {
-                val mealImage = view.findViewById<ImageView>(R.id.img_random_meal)
-                val imageUrl = t!!.meals[0].strMealThumb
-                randomMealId = t.meals[0].idMeal
+// observeRandomMeal
+        mainFragMVVM.observeRandomMeal().observe(viewLifecycleOwner, Observer { randomMealResponse ->
+            randomMealResponse?.let { response ->
+                val mealImage = view?.findViewById<ImageView>(R.id.img_random_meal)
+                val imageUrl = response.meals[0].strMealThumb
+                randomMealId = response.meals[0].idMeal
                 Glide.with(this@HomeFragment)
                     .load(imageUrl)
-                    .into(mealImage)
-                meal = t
+                    .into(mealImage!!)
+                meal = response
             }
-
         })
+
 
         mostPopularFoodAdapter.setOnClickListener(object : OnItemClick {
             override fun onItemClick(meal: Meal) {
@@ -142,25 +143,23 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         })
 
         detailMvvm.observeMealBottomSheet()
-            .observe(viewLifecycleOwner, object : Observer<List<MealDetail>> {
-                override fun onChanged(t: List<MealDetail>?) {
+            .observe(viewLifecycleOwner, Observer<List<MealDetail>> { t ->
+                t?.let {
                     val bottomSheetFragment = MealBottomDialog()
-                    val b = Bundle()
-                    b.putString(CATEGORY_NAME, t!![0].strCategory)
-                    b.putString(MEAL_AREA, t[0].strArea)
-                    b.putString(MEAL_NAME, t[0].strMeal)
-                    b.putString(MEAL_THUMB, t[0].strMealThumb)
-                    b.putString(MEAL_ID, t[0].idMeal)
+                    val b = Bundle().apply {
+                        putString(CATEGORY_NAME, it[0].strCategory)
+                        putString(MEAL_AREA, it[0].strArea)
+                        putString(MEAL_NAME, it[0].strMeal)
+                        putString(MEAL_THUMB, it[0].strMealThumb)
+                        putString(MEAL_ID, it[0].idMeal)
+                    }
 
                     bottomSheetFragment.arguments = b
-
                     bottomSheetFragment.show(childFragmentManager, "BottomSheetDialog")
                 }
-
             })
 
 
-        // on search icon click
         binding.imgSearch.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_searchFragment)
         }
@@ -193,14 +192,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun showLoadingCase() {
         binding.apply {
             header.visibility = View.INVISIBLE
-
             tvWouldLikeToEat.visibility = View.INVISIBLE
-            randomMeal.visibility = View.INVISIBLE
-            tvOverPupItems.visibility = View.INVISIBLE
-            recViewMealsPopular.visibility = View.INVISIBLE
-            tvCategory.visibility = View.INVISIBLE
-            categoryCard.visibility = View.INVISIBLE
-            loadingGif.visibility = View.VISIBLE
+            randomMeal.visibility= View.INVISIBLE
+            tvOverPupItems.visibility= View.INVISIBLE
+            recViewMealsPopular.visibility= View.INVISIBLE
+            tvCategory.visibility= View.INVISIBLE
+            categoryCard.visibility= View.INVISIBLE
+            loadingGif.visibility= View.VISIBLE
             rootHome.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.g_loading))
 
         }
@@ -209,13 +207,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun cancelLoadingCase() {
         binding.apply {
             header.visibility = View.VISIBLE
-            tvWouldLikeToEat.visibility = View.VISIBLE
-            randomMeal.visibility = View.VISIBLE
-            tvOverPupItems.visibility = View.VISIBLE
-            recViewMealsPopular.visibility = View.VISIBLE
-            tvCategory.visibility = View.VISIBLE
+            tvWouldLikeToEat.visibility= View.VISIBLE
+            randomMeal.visibility= View.VISIBLE
+            tvOverPupItems.visibility= View.VISIBLE
+            recViewMealsPopular.visibility= View.VISIBLE
+            tvCategory.visibility= View.VISIBLE
             categoryCard.visibility = View.VISIBLE
-            loadingGif.visibility = View.INVISIBLE
+            loadingGif.visibility= View.INVISIBLE
             rootHome.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
 
         }

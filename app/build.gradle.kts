@@ -38,24 +38,27 @@ android {
     }
     buildFeatures {
         dataBinding = true
+        viewBinding= true
     }
+
 
 }
 
 dependencies {
-    val nav_version = "2.3.5"
-    val lifecycle_version = "2.4.0"
-    val room_version = "2.3.0"
+    val nav_version = "2.7.7"
+    val lifecycle_version = "2.8.2"
+    val room_version = "2.6.1"
+    val core_version = "1.13.1"
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
-    implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.appcompat:appcompat:1.3.1")
-    implementation("com.google.android.material:material:1.4.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.1")
+    implementation("androidx.core:core-ktx:$core_version")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     testImplementation("junit:junit:4.+")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     // Navigation component
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
@@ -73,13 +76,13 @@ dependencies {
 
 
     // Glide
-    implementation("com.github.bumptech.glide:glide:4.12.0")
-    kapt("com.github.bumptech.glide:compiler:4.12.0")
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    kapt("com.github.bumptech.glide:compiler:4.15.1")
 
     // Room
     implementation("androidx.room:room-runtime:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
 
     // GIF support
-    implementation("pl.droidsonroids.gif:android-gif-drawable:1.2.17")
+    implementation("pl.droidsonroids.gif:android-gif-drawable:1.2.25")
 }

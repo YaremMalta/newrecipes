@@ -7,7 +7,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModel
 import com.bumptech.glide.Glide
 import com.example.newrecipes.R
 import com.example.newrecipes.data.pojo.MealDB
@@ -27,13 +28,11 @@ class MealDetailesActivity : AppCompatActivity() {
     private var mealStr = ""
     private var mealThumb = ""
     private var ytUrl = ""
-    private lateinit var dtMeal:MealDetail
-
-
+    private lateinit var dtMeal: MealDetail
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        detailsMVVM = ViewModelProviders.of(this)[DetailsMVVM::class.java]
+        detailsMVVM = ViewModelProvider(this)[DetailsMVVM::class.java]
         binding = ActivityMealDetailesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -45,66 +44,64 @@ class MealDetailesActivity : AppCompatActivity() {
 
         detailsMVVM.getMealById(mealId)
 
-        detailsMVVM.observeMealDetail().observe(this, object : Observer<List<MealDetail>> {
-            override fun onChanged(t: List<MealDetail>?) {
-                setTextsInViews(t!![0])
+        detailsMVVM.observeMealDetail().observe(this, Observer { mealDetails ->
+            if (mealDetails != null && mealDetails.isNotEmpty()) {
+                setTextsInViews(mealDetails[0])
                 stopLoading()
             }
-
         })
 
         binding.imgYoutube.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(ytUrl)))
         }
 
-
         binding.btnSave.setOnClickListener {
-            if(isMealSavedInDatabase()){
+            if (isMealSavedInDatabase()) {
                 deleteMeal()
                 binding.btnSave.setImageResource(R.drawable.ic_baseline_save_24)
                 Snackbar.make(
                     findViewById(android.R.id.content),
                     "Meal was deleted",
-                Snackbar.LENGTH_SHORT).show()
-            }else{
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            } else {
                 saveMeal()
                 binding.btnSave.setImageResource(R.drawable.ic_saved)
                 Snackbar.make(
                     findViewById(android.R.id.content),
                     "Meal saved",
-                    Snackbar.LENGTH_SHORT).show()
+                    Snackbar.LENGTH_SHORT
+                ).show()
             }
         }
-
     }
-
-
 
     private fun deleteMeal() {
         detailsMVVM.deleteMealById(mealId)
     }
 
     private fun setFloatingButtonStatues() {
-        if(isMealSavedInDatabase()){
+        if (isMealSavedInDatabase()) {
             binding.btnSave.setImageResource(R.drawable.ic_saved)
-        }else{
+        } else {
             binding.btnSave.setImageResource(R.drawable.ic_baseline_save_24)
         }
     }
 
     private fun isMealSavedInDatabase(): Boolean {
-       return detailsMVVM.isMealSavedInDatabase(mealId)
+        return detailsMVVM.isMealSavedInDatabase(mealId)
     }
 
     private fun saveMeal() {
-        val meal = MealDB(dtMeal.idMeal.toInt(),
+        val meal = MealDB(
+            dtMeal.idMeal.toInt(),
             dtMeal.strMeal,
             dtMeal.strArea,
             dtMeal.strCategory,
             dtMeal.strInstructions,
             dtMeal.strMealThumb,
-            dtMeal.strYoutube)
-
+            dtMeal.strYoutube
+        )
         detailsMVVM.insertMeal(meal)
     }
 
@@ -114,13 +111,10 @@ class MealDetailesActivity : AppCompatActivity() {
         binding.imgYoutube.visibility = View.INVISIBLE
     }
 
-
     private fun stopLoading() {
         binding.progressBar.visibility = View.INVISIBLE
         binding.btnSave.visibility = View.VISIBLE
-
         binding.imgYoutube.visibility = View.VISIBLE
-
     }
 
     private fun setTextsInViews(meal: MealDetail) {
@@ -137,7 +131,6 @@ class MealDetailesActivity : AppCompatActivity() {
         }
     }
 
-
     private fun setUpViewWithMealInformation() {
         binding.apply {
             collapsingToolbar.title = mealStr
@@ -145,7 +138,6 @@ class MealDetailesActivity : AppCompatActivity() {
                 .load(mealThumb)
                 .into(imgMealDetail)
         }
-
     }
 
     private fun getMealInfoFromIntent() {
@@ -155,5 +147,4 @@ class MealDetailesActivity : AppCompatActivity() {
         this.mealStr = tempIntent.getStringExtra(MEAL_STR)!!
         this.mealThumb = tempIntent.getStringExtra(MEAL_THUMB)!!
     }
-
 }

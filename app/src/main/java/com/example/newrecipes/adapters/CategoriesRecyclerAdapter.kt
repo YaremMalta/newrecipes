@@ -1,6 +1,7 @@
 package com.example.newrecipes.adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -39,6 +40,7 @@ class CategoriesRecyclerAdapter : RecyclerView.Adapter<CategoriesRecyclerAdapter
         holder.binding.apply {
             tvCategoryName.text = categoryList[position].strCategory
 
+            val imgCategory = imgCategory
             Glide.with(holder.itemView)
                 .load(categoryList[position].strCategoryThumb)
                 .into(imgCategory)

@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -38,7 +38,7 @@ class FavoriteMeals : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         myAdapter = FavoriteMealsRecyclerAdapter()
-        detailsMVVM = ViewModelProviders.of(this)[DetailsMVVM::class.java]
+        detailsMVVM = ViewModelProvider(this)[DetailsMVVM::class.java]
     }
 
     override fun onCreateView(
@@ -58,15 +58,13 @@ class FavoriteMeals : Fragment() {
         onFavoriteLongMealClick()
         observeBottomDialog()
 
-        detailsMVVM.observeSaveMeal().observe(viewLifecycleOwner,object : Observer<List<MealDB>>{
-            override fun onChanged(t: List<MealDB>?) {
-                myAdapter.setFavoriteMealsList(t!!)
-                if(t.isEmpty())
+        detailsMVVM.observeSaveMeal().observe(viewLifecycleOwner, Observer { t ->
+            t?.let {
+                myAdapter.setFavoriteMealsList(it)
+                if (it.isEmpty())
                     fBinding.tvFavEmpty.visibility = View.VISIBLE
-
                 else
                     fBinding.tvFavEmpty.visibility = View.GONE
-
             }
         })
 
@@ -103,19 +101,21 @@ class FavoriteMeals : Fragment() {
     }
 
     private fun observeBottomDialog() {
-        detailsMVVM.observeMealBottomSheet().observe(viewLifecycleOwner,object : Observer<List<MealDetail>>{
-            override fun onChanged(t: List<MealDetail>?) {
-                val bottomDialog = MealBottomDialog()
-                val b = Bundle()
-                b.putString(CATEGORY_NAME,t!![0].strCategory)
-                b.putString(MEAL_AREA,t[0].strArea)
-                b.putString(MEAL_NAME,t[0].strMeal)
-                b.putString(MEAL_THUMB,t[0].strMealThumb)
-                b.putString(MEAL_ID,t[0].idMeal)
-                bottomDialog.arguments = b
-                bottomDialog.show(childFragmentManager,"Favorite bottom dialog")
+        detailsMVVM.observeMealBottomSheet().observe(viewLifecycleOwner, Observer { t ->
+            t?.let {
+                if (it.isNotEmpty()) {
+                    val bottomDialog = MealBottomDialog()
+                    val b = Bundle().apply {
+                        putString(CATEGORY_NAME, it[0].strCategory)
+                        putString(MEAL_AREA, it[0].strArea)
+                        putString(MEAL_NAME, it[0].strMeal)
+                        putString(MEAL_THUMB, it[0].strMealThumb)
+                        putString(MEAL_ID, it[0].idMeal)
+                    }
+                    bottomDialog.arguments = b
+                    bottomDialog.show(childFragmentManager, "Favorite bottom dialog")
+                }
             }
-
         })
     }
 
