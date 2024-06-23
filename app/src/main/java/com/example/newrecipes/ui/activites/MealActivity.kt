@@ -15,7 +15,6 @@ import com.example.newrecipes.adapters.SetOnMealClickListener
 import com.example.newrecipes.data.pojo.Meal
 import com.example.newrecipes.databinding.ActivityCategoriesBinding
 import com.example.newrecipes.mvvm.MealActivityMVVM
-import com.example.newrecipes.ui.fragments.HomeFragment
 import com.example.newrecipes.ui.fragments.HomeFragment.Companion.CATEGORY_NAME
 import com.example.newrecipes.ui.fragments.HomeFragment.Companion.MEAL_ID
 import com.example.newrecipes.ui.fragments.HomeFragment.Companion.MEAL_STR
@@ -34,18 +33,12 @@ class MealActivity : AppCompatActivity() {
         startLoading()
         prepareRecyclerView()
         mealActivityMvvm.getMealsByCategory(getCategory())
-        mealActivityMvvm.observeMeal().observe(this, object : Observer<List<Meal>> {
+        mealActivityMvvm.observeMeal().observe(/* owner = */ this, /* observer = */ object : Observer<List<Meal>> {
             override fun onChanged(value: List<Meal>) {
-                val t = null
-                if(t==null){
-                    hideLoading()
-                    Toast.makeText(applicationContext, "No meals in this category", Toast.LENGTH_SHORT).show()
-                    onBackPressed()
-                }else {
-                    myAdapter.setCategoryList(t!!)
-                    binding.tvCategoryCount.text = categoryNme + " : " + t.toString()
-                    hideLoading()
-                }
+
+                hideLoading()
+                Toast.makeText(applicationContext, "No meals in this category", Toast.LENGTH_SHORT).show()
+
             }
         })
 
@@ -74,7 +67,6 @@ class MealActivity : AppCompatActivity() {
     }
 
     private fun getCategory(): String {
-        val tempIntent = intent
         val x = intent.getStringExtra(CATEGORY_NAME)!!
         categoryNme = x
         return x

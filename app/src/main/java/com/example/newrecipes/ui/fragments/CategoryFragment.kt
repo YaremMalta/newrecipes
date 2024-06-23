@@ -43,6 +43,7 @@ class CategoryFragment : Fragment(R.layout.fragment_category) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prepareRecyclerView()
+        categoryMvvm = ViewModelProvider(this)[CategoryMVVM::class.java]
         observeCategories()
         onCategoryClick()
     }
@@ -66,6 +67,7 @@ class CategoryFragment : Fragment(R.layout.fragment_category) {
 
     private fun prepareRecyclerView() {
         binding.favoriteRecyclerView.apply {
+              myAdapter= CategoriesRecyclerAdapter()
             adapter = myAdapter
             layoutManager = GridLayoutManager(context,3,GridLayoutManager.VERTICAL,false)
         }

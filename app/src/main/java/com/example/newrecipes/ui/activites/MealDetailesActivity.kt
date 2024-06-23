@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModel
 import com.bumptech.glide.Glide
@@ -20,6 +19,7 @@ import com.example.newrecipes.ui.fragments.HomeFragment.Companion.MEAL_ID
 import com.example.newrecipes.ui.fragments.HomeFragment.Companion.MEAL_STR
 import com.example.newrecipes.ui.fragments.HomeFragment.Companion.MEAL_THUMB
 import com.google.android.material.snackbar.Snackbar
+import androidx.lifecycle.Observer as LifecycleObserver
 
 class MealDetailesActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMealDetailesBinding
@@ -44,7 +44,7 @@ class MealDetailesActivity : AppCompatActivity() {
 
         detailsMVVM.getMealById(mealId)
 
-        detailsMVVM.observeMealDetail().observe(this, Observer { mealDetails ->
+        detailsMVVM.observeMealDetail().observe(this, LifecycleObserver { mealDetails ->
             if (mealDetails != null && mealDetails.isNotEmpty()) {
                 setTextsInViews(mealDetails[0])
                 stopLoading()
