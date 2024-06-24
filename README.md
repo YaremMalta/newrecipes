@@ -1,12 +1,24 @@
-This project was prepared within the scope of the Graduation Thesis course of the
-Department of Computer Engineering. It presents the development of an Android recipe
-application designed to enhance users' culinary experiences by allowing them to discover,
-save, and manage their favorite recipes. The main page of the application features randomly
-selected recipes, popular dishes, and various categories, providing a comprehensive
-browsing experience. Users can explore recipes by category, add them to their favorites,
-and access detailed instructions along with YouTube links for a more interactive cooking
-experience.
-The application was built using modern Android development practices and libraries,
-including Retrofit for network operations, Room for local database management, Glide for
-image loading, and ViewModel along with LiveData to implement the MVVM architecture.
-These technologies ensure a responsive, efficient, and user-friendly application.
+# Newrecipes
+
+This project is an Android application that allows users to easily access various recipes. The app features a user-friendly interface and utilizes Android Studio's capabilities aside from the Kotlin programming language.
+
+## Features
+
+- List and view recipes
+- Search recipes by categories
+- Save favorite recipes
+
+### Installation
+
+Step-by-step installation instructions:
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/username/recipe-app.git
+2.Open Android Studio and click on "Open an existing Android Studio project."
+
+3.Select the directory of the cloned project.
+
+4.Follow Android Studio's instructions to download the necessary dependencies and SDK components.
+
+5.Build and run the project.
