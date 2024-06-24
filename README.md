@@ -14,6 +14,7 @@ Step-by-step installation instructions:
 
 1. Clone the repository:
    git clone https://github.com/YaremMalta/newrecipes.git
+   
 2.Open Android Studio and click on "Open an existing Android Studio project."
 
 3.Select the directory of the cloned project.
